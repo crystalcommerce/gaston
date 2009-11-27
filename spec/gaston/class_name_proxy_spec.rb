@@ -12,15 +12,15 @@ module Gaston
 
     it "augments the fields with the classname" do
       index = mock("index")
-      proxy = ClassNameProxy.new(index, Product.name)
+      proxy = ClassNameProxy.new(index, "Record")
       
-      index.should_receive(:fields).with(Product.name, [:name, :category_name])
+      index.should_receive(:fields).with("Record", [:name, :category_name])
       proxy.fields [:name, :category_name]
     end
 
     it "is == with the wrapped index class" do
       index = mock("index")
-      proxy = ClassNameProxy.new(index, Product.name)
+      proxy = ClassNameProxy.new(index, "Reocrd")
       proxy.should == index
     end
   end

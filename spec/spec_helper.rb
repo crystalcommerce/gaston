@@ -1,9 +1,40 @@
-begin
-  require File.dirname(__FILE__) + '/../../../../spec/spec_helper'
-rescue LoadError
-  puts "You need to install rspec in your base app"
-  exit
+$LOAD_PATH.unshift(File.dirname(__FILE__))
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
+
+require 'gaston'
+
+require 'rubygems'
+require 'ruby-debug'
+require 'spec'
+require 'spec/autorun'
+require 'matchers/array_matcher'
+
+Spec::Runner.configure do |config|
+  
 end
- 
-plugin_spec_dir = File.dirname(__FILE__)
-ActiveRecord::Base.logger = Logger.new(plugin_spec_dir + "/debug.log")
+
+module Gaston
+  module Spec
+    # Just to define necessary methods.
+    # Must be stubbed if you actually expect results
+    class FakeActiveRecord
+      class << self
+        # We do it this way so we can mock find and not worry about
+        # the block
+        def find_in_batches(*args)
+          yield self.find
+        end
+
+        def all
+          []
+        end
+
+        def method_missing(sym, *args, &block)
+          if sym =~/^find/
+            []
+          end
+        end
+      end
+    end
+  end
+end

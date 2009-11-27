@@ -8,8 +8,6 @@ module Gaston
 
   describe Base do
     before(:each) do
-      Hijacker::Database.stub!(:all).and_return([mock("Database", :database => "spec_data")])
-      Hijacker.stub!(:current_client).and_return("spec_data")
       @index = double("Index").as_null_object
       @index.stub!(:fields)
       Gaston::Index.stub!(:instance).and_return(@index)
@@ -31,9 +29,14 @@ module Gaston
     end
 
     describe "#search" do
-      it "Passes the class name and the search term to the index" do
-        @index.should_receive(:search).with(Doc.name, "fancy name", {})
-        Doc.search("fancy name")
+      it "passes the query to the index" do
+        @index.should_receive(:search).with(Doc.name, match(/query string/), {})
+        Doc.search("query string")
+      end
+
+      it "adds the ferret_class to the query" do
+        @index.should_receive(:search).with(Doc.name, match(/^\+ferret_class:#{Doc.name}/), {})
+        Doc.search("query string")
       end
     end
   end

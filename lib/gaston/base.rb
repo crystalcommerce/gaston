@@ -1,18 +1,19 @@
 module Gaston
   module Base
-    def define_index
-      Hijacker::Database.all.each do |client|
-        index = Gaston::Index.instance(client.database)
-        yield ClassNameProxy.new(index, self.name)
-        index.indexed_classes << self
+    def define_index(database = "default")
+      index = Gaston::Index.instance(database)
+      yield ClassNameProxy.new(index, self.name)
+
+      define_method :ferret_class do
+        self.class.name
       end
+      index.indexed_classes << self
     end
 
     def search(term, options = {})
-      index = Gaston::Index.instance
-      index.search(self.name, term, options)
+      Gaston::Index.search(self.name,
+                           "+ferret_class:#{self.name} +(#{term})",
+                           options)
     end
   end
 end
-
-ActiveRecord::Base.extend Gaston::Base
