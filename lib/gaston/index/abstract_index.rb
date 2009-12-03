@@ -25,8 +25,8 @@ module Gaston
             results << doc[:id]
           end
         end
-        options.merge!( :order => "field(id,#{results.join(',')})" )
-        objs = classname.constantize.find(results, options)
+        options.merge!( :order => "field(id,#{results.join(',')})", :conditions => { :id => results } )
+        objs = classname.constantize.find(:all, options)
         SearchResults.new(results.size, objs)
       end
 
