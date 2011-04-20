@@ -17,7 +17,7 @@ module Gaston
         end
       end
 
-      def search(classname, query, options = {})
+      def ferret_search(query)
         results = []
         with_ferret_index do |f_idx|
           f_idx.search_each(query, :limit => 500) do |doc_id, score|
@@ -25,9 +25,16 @@ module Gaston
             results << doc[:id]
           end
         end
+        results
+      end
+
+      def search(classname, query, options = {})
+        results = ferret_search(query)
         return SearchResults.new(0, results) if results.empty?
 
-        options.merge!( :order => "field(id,#{results.join(',')})", :conditions => { :id => results } )
+        conditions = (options[:conditions] || {}).merge({ :id => results })
+
+        options.merge!( :order => "field(id,#{results.join(',')})", :conditions => conditions )
         objs = classname.constantize.find(:all, options)
         SearchResults.new(results.size, objs)
       end

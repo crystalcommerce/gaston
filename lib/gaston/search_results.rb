@@ -1,6 +1,6 @@
 module Gaston
   class SearchResults
-    attr_reader :count
+    attr_reader :count, :target
     
     def initialize(count, objects)
       @count = count

@@ -36,6 +36,10 @@ module Gaston
         instance(index_name).delete(record)
       end
 
+      def ferret_search(query, index_name = "default")
+        instance(index_name).ferret_search(query)
+      end
+
       def search(classname, query, options = {}, index_name = "default")
         instance(index_name).search(classname, query, options)
       end
