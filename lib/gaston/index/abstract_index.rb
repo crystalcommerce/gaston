@@ -17,10 +17,10 @@ module Gaston
         end
       end
 
-      def ferret_search(query)
+      def ferret_search(query, options = {})
         results = []
         with_ferret_index do |f_idx|
-          f_idx.search_each(query, :limit => 500) do |doc_id, score|
+          f_idx.search_each(query, options.reverse_merge(:limit => 500)) do |doc_id, score|
             doc = f_idx[doc_id]
             results << doc[:id]
           end
@@ -29,11 +29,11 @@ module Gaston
       end
 
       def search(classname, query, options = {})
-        results = ferret_search(query)
+        results = ferret_search(query, options.only(:limit, 'limit'))
         return SearchResults.new(0, results) if results.empty?
-
+        
         conditions = (options[:conditions] || {}).merge({ :id => results })
-
+        
         options.merge!( :order => "field(id,#{results.join(',')})", :conditions => conditions )
         objs = classname.constantize.find(:all, options)
         SearchResults.new(results.size, objs)
